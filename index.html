@@ -5,124 +5,112 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MM2 RNG Game</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<style>
-    .back{
-        background-color: #00000066;
-    }
-    .centerbox{
-        position: absolute;
-        display: flex;
-        flex-direction: column;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: lightgray;
-        border-radius: 2rem;
-        min-height: 70vh;
-        width: 30vw;
-        align-items: center;
-        justify-content: space-evenly;
-        box-shadow: 0 1rem 1rem #00000066;
-        padding: 2rem;
-        overflow-y: hidden;
-        overflow-x: hidden;
-    }
-    .container{
-        width: inherit;
-        display:grid;
-        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-    }
-    .wrapper{
-        padding: 1rem;
-        outline: auto;
-    }
-</style>
 <body class="back">
     <div class="centerbox">
         <div class="container"></div>
         <button id="btnPlay" onclick="funPlay()">Play</button>
-        <textarea name="" id="output" cols="50" rows="10" disabled></textarea>
+        <button id="btnReset" onclick="funReset()">Restart</button>
+        <textarea class="output" name="" id="output" rows="10" disabled></textarea>
     </div>
 </body>
 <script>
     const carlist = {
         vpgtr: {
             vName: "GTR",
-            vDesc:"0-30 7 points, 31-99 -6 points",
+            vDesc:"30% 7 points, 70% -6 points",
             vScore: function() {
                 let score = 7;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>30){score = -6;}
+                if(roll>29){score = -6;}
                 return score;
             }
         },
         vppanoz: {
             vName: "Panoz",
-            vDesc:"0-40 6 points, 41-99 -5 points",
+            vDesc:"40% 6 points, 60% -5 points",
             vScore: function() {
                 let score = 6;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>40){score = -5;}
+                if(roll>39){score = -5;}
                 return score;
             }
         },
         vpbug: {
             vName: "Beetle",
-            vDesc:"0-45 5 points, 46-99 -4 points",
+            vDesc:"45% 5 points, 55% -4 points",
             vScore: function() {
                 let score = 5;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>45){score = -4;}
+                if(roll>44){score = -4;}
                 return score;
             }
         },
         vpmustang: {
             vName: "Mustang",
-            vDesc:"0-50 5 points, 51-99 -5 points",
+            vDesc:"50% 5 points, 50% -5 points",
             vScore: function() {
                 let score = 5;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>50){score = -5;}
+                if(roll>49){score = -5;}
                 return score;
             }
         },
         vpbus: {
             vName: "Bus",
-            vDesc:"0-60 2 points, 61-99 -2 points",
+            vDesc:"60% 2 points, 40% -2 points",
             vScore: function() {
                 let score = 2;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>60){score = -2;}
+                if(roll>59){score = -2;}
                 return score;
             }
         },
         vpcentury: {
             vName: "Freightliner",
-            vDesc:"0-95 1 point, 96-99 -3 points",
+            vDesc:"95% 1 point, 5% -3 points",
             vScore: function() {
                 let score = 1;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>95){score = -3;}
+                if(roll>94){score = -3;}
                 return score;
             }
         }
     };
-    const numBoxGen = 3;
-    let points = 10;
-    let selFlag = 0;
+
+    const initVars = {
+        numBoxGen: 3,
+        points: 10,
+        selFlag: 0,
+        turns: 1,
+        maxTurns: 10,
+        winPoints: 50
+    };
+
+    // let gameVars = Object.create(initVars);
+    let gameVars = {...initVars};
+    console.log(gameVars);
+
+    // let numBoxGen = initVars['numBoxGen'];
+    // let points = initVars['points'];
+    // let selFlag = initVars['selFlag'];
+    // let turns = initVars['turns'];
+    // let maxTurns = initVars['maxTurns'];
+
     const cont = document.querySelector(".container");
-    for(let i=0; i<numBoxGen; i++){
+    for(let i=0; i<gameVars.numBoxGen; i++){
         cont.innerHTML += `
         <div class="wrapper" data-peer-div="${i}">
             <select onchange="funDetails(this)" data-peer="${i}"></select>
-            <p data-peer-text="${i}">${carlist[Object.keys(carlist)[0]].vDesc}</p>
+            <p class="desc" data-peer-text="${i}">${carlist[Object.keys(carlist)[0]].vDesc}</p>
         </div>
         `;
     }
     const disPT = document.querySelectorAll('[data-peer-text]');
     const output = document.getElementById("output");
     const btnPlay = document.getElementById("btnPlay");
+    const btnReset = document.getElementById("btnReset");
     
     function funDisableSel() {
         let dropdowns = document.querySelectorAll('[data-peer]');
@@ -145,7 +133,7 @@
         let vSelected = e.options[e.selectedIndex].value;
         let aSelected = e.getAttribute("data-peer");
         disPT[aSelected].innerHTML = carlist[vSelected].vDesc;
-        if(selFlag){
+        if(gameVars.selFlag){
             funDisableSel();
         }
         // console.log(aSelected);
@@ -154,27 +142,60 @@
     function funPlay() {
         let dropdowns = document.querySelectorAll('[data-peer]');
         let temp = 0;
-        selFlag = 1;
+        gameVars.selFlag = 1;
+        output.innerHTML += `Turn ${gameVars.turns}:-\n`;
+        gameVars.turns+=1;
         for(let i in dropdowns){
             if(dropdowns[i].options){
                 output.innerHTML += `${dropdowns[i].options[dropdowns[i].selectedIndex].innerHTML} `;
                 temp = carlist[dropdowns[i].options[dropdowns[i].selectedIndex].value].vScore();
                 output.innerHTML += `${temp} `;
                 // output.innerHTML += `${carlist[dropdowns[i].options[dropdowns[i].selectedIndex].value].vScore()} `;
-                points += temp;
+                gameVars.points += temp;
             }
         }
-        output.innerHTML += `${points}`;
+        output.innerHTML += `${gameVars.points}`;
         output.innerHTML += `\n`;
         output.scrollTop = output.scrollHeight;
 
         funEnableSel();
 
-        if(points<1){
+        if(gameVars.points<1){
             btnPlay.disabled = true;
             output.innerHTML += `Game Over`;
-            selFlag = 0;
+            setTimeout( ()=> {
+                btnPlay.setAttribute('style', 'display: none');
+                btnReset.setAttribute('style', 'display: initial');} , 600);
+            funDisableSel();
         }
+        if(gameVars.points>=gameVars.winPoints){
+            btnPlay.disabled = true;
+            output.innerHTML += `You Won on Turn ${gameVars.turns} with ${gameVars.points} Points!!`;
+            setTimeout( ()=> {
+                btnPlay.setAttribute('style', 'display: none');
+                btnReset.setAttribute('style', 'display: initial');} , 600);
+            funDisableSel();
+        }
+    }
+    
+    function funReset() {
+        // numBoxGen = initVars['numBoxGen'];
+        // points = initVars['points'];
+        // selFlag = initVars['selFlag'];
+        // turns = initVars['turns'];
+
+        Object.keys(gameVars).forEach(key => {
+        gameVars[key] = initVars[key];
+        });
+
+        // gameVars = initVars;
+        console.log(gameVars);
+
+        funEnableSel();
+        btnReset.setAttribute('style', 'display: none');
+        btnPlay.setAttribute('style', 'display: initial');
+        btnPlay.disabled = false;
+        output.innerHTML = `Your Staring Points are ${gameVars.points}\n`;
     }
     window.onload = (event) => {
         let dropdowns = document.querySelectorAll('[data-peer]');
@@ -185,7 +206,7 @@
             }
         } 
         // console.log(dropdowns);
-        output.innerHTML += `Your Staring Points are ${points}\n`;
+        output.innerHTML += `Your Staring Points are ${gameVars.points}\n`;
     };
 </script>
 </html>
