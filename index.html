@@ -16,64 +16,98 @@
     </div>
 </body>
 <script>
+    const modifiers = {
+        Spotless: {
+            mPlus: 1.5,
+            mMinus: 0.5,
+            mRarity: 20
+        },
+        Scratched: {
+            mPlus: 0.8,
+            mMinus: 1,
+            mRarity: 55
+        },
+        Smoking: {
+            mPlus: 0.5,
+            mMinus: 1.5,
+            mRarity: 45
+        },
+        Schizophrenic: {
+            mPlus: 3,
+            mMinus: 3,
+            mRarity: 3
+        },
+        Standard: {
+            mPlus: 1,
+            mMinus: 1,
+            mRarity: 50
+        }
+
+    }
     const carlist = {
         vpgtr: {
-            vName: "GTR",
-            vDesc:"30% 7 points, 70% -6 points",
+            vName:"GTR",
+            vDesc:"Race Car",
+            vFullDesc:"30% 70 points, 70% -60 points",
             vScore: function() {
-                let score = 7;
+                let score = 70;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>29){score = -6;}
+                if(roll>29){score = -60;}
                 return score;
             }
         },
         vppanoz: {
-            vName: "Panoz",
-            vDesc:"40% 6 points, 60% -5 points",
+            vName:"Panoz",
+            vDesc:"Stylish Car",
+            vFullDesc:"40% 60 points, 60% -50 points",
             vScore: function() {
-                let score = 6;
+                let score = 60;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>39){score = -5;}
+                if(roll>39){score = -50;}
                 return score;
             }
         },
         vpbug: {
-            vName: "Beetle",
-            vDesc:"45% 5 points, 55% -4 points",
+            vName:"Beetle",
+            vDesc:"Family Car",
+            vFullDesc:"45% 55 points, 55% -45 points",
             vScore: function() {
-                let score = 5;
+                let score = 55;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>44){score = -4;}
+                if(roll>44){score = -45;}
                 return score;
             }
         },
         vpmustang: {
-            vName: "Mustang",
-            vDesc:"50% 5 points, 50% -5 points",
+            vName:"Mustang",
+            vDesc:"Muscle Car",
+            vFullDesc:"50% 50 points, 50% -50 points",
             vScore: function() {
-                let score = 5;
+                let score = 50;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>49){score = -5;}
+                if(roll>49){score = -50;}
                 return score;
             }
         },
         vpbus: {
-            vName: "Bus",
-            vDesc:"60% 2 points, 40% -2 points",
+            vName:"Bus",
+            vDesc:"Public Transport",
+            vFullDesc:"60% 20 points, 40% -20 points",
             vScore: function() {
-                let score = 2;
+                let score = 20;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>59){score = -2;}
+                if(roll>59){score = -20;}
                 return score;
             }
         },
         vpcentury: {
-            vName: "Freightliner",
-            vDesc:"95% 1 point, 5% -3 points",
+            vName:"Freightliner",
+            vDesc:"Supply Truck",
+            vFullDesc:"95% 10 points, 5% -30 points",
             vScore: function() {
-                let score = 1;
+                let score = 10;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>94){score = -3;}
+                if(roll>94){score = -30;}
                 return score;
             }
         }
@@ -81,16 +115,16 @@
 
     const initVars = {
         numBoxGen: 3,
-        points: 10,
+        points: 100,
         selFlag: 0,
         turns: 1,
         maxTurns: 10,
-        winPoints: 50
+        winPoints: 5000
     };
 
     // let gameVars = Object.create(initVars);
     let gameVars = {...initVars};
-    console.log(gameVars);
+    // console.log(gameVars);
 
     // let numBoxGen = initVars['numBoxGen'];
     // let points = initVars['points'];
@@ -101,13 +135,14 @@
     const cont = document.querySelector(".container");
     for(let i=0; i<gameVars.numBoxGen; i++){
         cont.innerHTML += `
-        <div class="wrapper" data-peer-div="${i}">
+        <div class="wrapper" data-peer-div="${i}" data-xp="0" data-lvl="1">
             <select onchange="funDetails(this)" data-peer="${i}"></select>
-            <p class="desc" data-peer-text="${i}">${carlist[Object.keys(carlist)[0]].vDesc}</p>
+            <p class="desc" data-peer-text="${i}">Standard ${carlist[Object.keys(carlist)[0]].vDesc} \nLVL 1</p>
         </div>
         `;
     }
     const disPT = document.querySelectorAll('[data-peer-text]');
+    const vehWraps = document.querySelectorAll('[data-peer-div]');
     const output = document.getElementById("output");
     const btnPlay = document.getElementById("btnPlay");
     const btnReset = document.getElementById("btnReset");
@@ -129,10 +164,29 @@
         }
     }
 
+    function funRandomModSel() {
+        if(gameVars.selFlag){
+            let total = 0;
+            for(let i in modifiers){
+                total += modifiers[i].mRarity;
+            }
+            // let roll = Math.floor(Math.random() * total);
+            let roll = Math.random() * total;
+            for(i in modifiers) {
+                if(roll <= modifiers[i].mRarity){
+                    return i;
+                }
+                roll -= modifiers[i].mRarity;
+            }
+        }
+        return "Standard";   
+    }
+
     function funDetails(e) {
         let vSelected = e.options[e.selectedIndex].value;
         let aSelected = e.getAttribute("data-peer");
-        disPT[aSelected].innerHTML = carlist[vSelected].vDesc;
+        disPT[aSelected].innerHTML = funRandomModSel() + " " + carlist[vSelected].vDesc;
+        disPT[aSelected].innerHTML += "\nLVL " + vehWraps[aSelected].getAttribute("data-lvl");
         if(gameVars.selFlag){
             funDisableSel();
         }
@@ -149,6 +203,9 @@
             if(dropdowns[i].options){
                 output.innerHTML += `${dropdowns[i].options[dropdowns[i].selectedIndex].innerHTML} `;
                 temp = carlist[dropdowns[i].options[dropdowns[i].selectedIndex].value].vScore();
+                if(temp>0){temp = temp * (modifiers[disPT[i].innerHTML.split(" ", 1).toString()].mPlus)}
+                else{temp = temp * (modifiers[disPT[i].innerHTML.split(" ", 1).toString()].mMinus)}
+                temp = Math.floor(temp);
                 output.innerHTML += `${temp} `;
                 // output.innerHTML += `${carlist[dropdowns[i].options[dropdowns[i].selectedIndex].value].vScore()} `;
                 gameVars.points += temp;
@@ -189,7 +246,7 @@
         });
 
         // gameVars = initVars;
-        console.log(gameVars);
+        // console.log(gameVars);
 
         funEnableSel();
         btnReset.setAttribute('style', 'display: none');
@@ -197,6 +254,7 @@
         btnPlay.disabled = false;
         output.innerHTML = `Your Staring Points are ${gameVars.points}\n`;
     }
+
     window.onload = (event) => {
         let dropdowns = document.querySelectorAll('[data-peer]');
         for (let i in dropdowns){
