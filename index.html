@@ -17,32 +17,46 @@
 </body>
 <script>
     const modifiers = {
+        Superb: {
+            mPlus: 4,
+            mMinus: 0.2,
+            mRarity: 6
+        },
         Spotless: {
             mPlus: 1.5,
             mMinus: 0.5,
-            mRarity: 20
+            mRarity: 26
         },
         Scratched: {
             mPlus: 0.8,
-            mMinus: 1,
-            mRarity: 55
+            mMinus: 1.2,
+            mRarity: 20
+        },
+        Shaky: {
+            mPlus: 0.75,
+            mMinus: 1.25,
+            mRarity: 10
+        },
+        Slow: {
+            mPlus: 0.7,
+            mMinus: 1.3,
+            mRarity: 15
         },
         Smoking: {
             mPlus: 0.5,
             mMinus: 1.5,
-            mRarity: 45
+            mRarity: 17
         },
         Schizophrenic: {
-            mPlus: 3,
-            mMinus: 3,
+            mPlus: 10,
+            mMinus: 5,
             mRarity: 3
         },
         Standard: {
             mPlus: 1,
             mMinus: 1,
-            mRarity: 50
+            mRarity: 30
         }
-
     }
     const carlist = {
         vpgtr: {
@@ -236,19 +250,19 @@
     }
     
     function funReset() {
-        // numBoxGen = initVars['numBoxGen'];
-        // points = initVars['points'];
-        // selFlag = initVars['selFlag'];
-        // turns = initVars['turns'];
-
+        
         Object.keys(gameVars).forEach(key => {
         gameVars[key] = initVars[key];
         });
-
-        // gameVars = initVars;
-        // console.log(gameVars);
-
+        
+        let dropdowns = document.querySelectorAll('[data-peer]');
+        for(let i in dropdowns){
+            if(dropdowns[i].options){
+                funDetails(dropdowns[i]);
+            }
+        }
         funEnableSel();
+        
         btnReset.setAttribute('style', 'display: none');
         btnPlay.setAttribute('style', 'display: initial');
         btnPlay.disabled = false;
