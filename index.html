@@ -22,34 +22,44 @@
             mMinus: 0.2,
             mRarity: 6
         },
+        Shiny: {
+            mPlus: 3,
+            mMinus: 0,
+            mRarity: 1
+        },
         Spotless: {
             mPlus: 1.5,
             mMinus: 0.5,
-            mRarity: 26
+            mRarity: 10
         },
         Scratched: {
             mPlus: 0.8,
             mMinus: 1.2,
-            mRarity: 20
+            mRarity: 10
         },
         Shaky: {
             mPlus: 0.75,
             mMinus: 1.25,
-            mRarity: 10
+            mRarity: 8
         },
         Slow: {
             mPlus: 0.7,
             mMinus: 1.3,
-            mRarity: 15
+            mRarity: 13
         },
         Smoking: {
             mPlus: 0.5,
             mMinus: 1.5,
-            mRarity: 17
+            mRarity: 13
+        },
+        Wrecked: {
+            mPlus: -0.1,
+            mMinus: 1.5,
+            mRarity: 2
         },
         Schizophrenic: {
-            mPlus: 10,
-            mMinus: 5,
+            mPlus: -5,
+            mMinus: -10,
             mRarity: 3
         },
         Standard: {
@@ -138,13 +148,6 @@
 
     // let gameVars = Object.create(initVars);
     let gameVars = {...initVars};
-    // console.log(gameVars);
-
-    // let numBoxGen = initVars['numBoxGen'];
-    // let points = initVars['points'];
-    // let selFlag = initVars['selFlag'];
-    // let turns = initVars['turns'];
-    // let maxTurns = initVars['maxTurns'];
 
     const cont = document.querySelector(".container");
     for(let i=0; i<gameVars.numBoxGen; i++){
