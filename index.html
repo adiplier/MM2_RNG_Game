@@ -140,9 +140,11 @@
     const initVars = {
         numBoxGen: 3,
         points: 100,
+        expenseX: 10,
         selFlag: 0,
         turns: 1,
-        maxTurns: 10,
+        expenseTurns: 5,
+        maxTurns: 50,
         winPoints: 5000
     };
 
@@ -209,6 +211,18 @@
         }
         // console.log(aSelected);
     }
+
+    function funRecExpense() {
+        let currentTurn = gameVars.turns - 1;
+        let pointsSubtracted = (gameVars.expenseX * currentTurn);
+        if(currentTurn%gameVars.expenseTurns == gameVars.expenseTurns-1){
+            output.innerHTML += `\nExpense of ${pointsSubtracted+gameVars.expenseX} coming up!\n`;
+        }
+        if(currentTurn%gameVars.expenseTurns == 0){
+            output.innerHTML += `\nBusiness Expense ${gameVars.points} - ${pointsSubtracted} \n`;
+            gameVars.points -= pointsSubtracted;
+        }
+    }
     
     function funPlay() {
         let dropdowns = document.querySelectorAll('[data-peer]');
@@ -228,13 +242,14 @@
                 gameVars.points += temp;
             }
         }
+        funRecExpense();
         output.innerHTML += `${gameVars.points}`;
         output.innerHTML += `\n`;
         output.scrollTop = output.scrollHeight;
 
         funEnableSel();
 
-        if(gameVars.points<1){
+        if(gameVars.points<1 || gameVars.turns>=gameVars.maxTurns){
             btnPlay.disabled = true;
             output.innerHTML += `Game Over`;
             setTimeout( ()=> {
@@ -269,7 +284,7 @@
         btnReset.setAttribute('style', 'display: none');
         btnPlay.setAttribute('style', 'display: initial');
         btnPlay.disabled = false;
-        output.innerHTML = `Your Staring Points are ${gameVars.points}\n`;
+        output.innerHTML = `Your Starting Points are ${gameVars.points}\n`;
     }
 
     window.onload = (event) => {
@@ -281,7 +296,7 @@
             }
         } 
         // console.log(dropdowns);
-        output.innerHTML += `Your Staring Points are ${gameVars.points}\n`;
+        output.innerHTML += `Your Starting Points are ${gameVars.points}\n`;
     };
 </script>
 </html>

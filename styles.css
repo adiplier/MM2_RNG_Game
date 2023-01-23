@@ -16,7 +16,7 @@
     justify-content: space-evenly;
     box-shadow: 0 1rem 1rem #00000066;
     padding: 2rem;
-    overflow-y: scroll;
+    overflow-y: hidden;
     overflow-x: hidden;
 }
 .container{
