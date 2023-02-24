@@ -76,6 +76,7 @@
             vFullName: "Panoz GTR-1",
             vDesc:"Race Car",
             vFullDesc:"30% 70 points, 70% -60 points",
+            vSynergy: ["Supply","Stylish"],
             vScore: function() {
                 let score = 70;
                 let roll = Math.floor(Math.random() * 100);
@@ -89,6 +90,7 @@
             vFullName: "Panoz Roadster",
             vDesc:"Stylish Car",
             vFullDesc:"40% 60 points, 60% -50 points",
+            vSynergy: ["Supply","Race"],
             vScore: function() {
                 let score = 60;
                 let roll = Math.floor(Math.random() * 100);
@@ -102,6 +104,7 @@
             vFullName: "Volkswagen New Beetle",
             vDesc:"Family Car",
             vFullDesc:"45% 55 points, 55% -45 points",
+            vSynergy: ["Public"],
             vScore: function() {
                 let score = 55;
                 let roll = Math.floor(Math.random() * 100);
@@ -115,6 +118,7 @@
             vFullName: "Ford Mustang GT 97",
             vDesc:"Muscle Car",
             vFullDesc:"50% 50 points, 50% -50 points",
+            vSynergy: ["Supply","Family"],
             vScore: function() {
                 let score = 50;
                 let roll = Math.floor(Math.random() * 100);
@@ -128,6 +132,7 @@
             vFullName: "City Bus",
             vDesc:"Public Transport",
             vFullDesc:"60% 20 points, 40% -20 points",
+            vSynergy: ["Family"],
             vScore: function() {
                 let score = 20;
                 let roll = Math.floor(Math.random() * 100);
@@ -141,6 +146,7 @@
             vFullName: "Freightliner Century",
             vDesc:"Supply Truck",
             vFullDesc:"95% 10 points, 5% -30 points",
+            vSynergy: ["Public","Transport","Family"],
             vScore: function() {
                 let score = 10;
                 let roll = Math.floor(Math.random() * 100);
@@ -158,11 +164,14 @@
         turns: 1,
         expenseTurns: 5,
         maxTurns: 120,
-        winPoints: 5000
+        winPoints: 5000,
+        lvlThresh: 3,
+        lvlBias: 1,
     };
 
     // let gameVars = Object.create(initVars);
     let gameVars = {...initVars};
+    let mapSyn = new Map();
 
     const cont = document.querySelector(".container");
     for(let i=0; i<gameVars.numBoxGen; i++){
@@ -220,17 +229,28 @@
 
     function funToggleDisplay(e) {
         e.style.display = (e.style.display == 'none') ? 'flex' : 'none';
-    } 
+    }
+    
+    function funXPNeeded(lvl){
+        return Math.floor((lvl + gameVars.lvlBias)*gameVars.lvlThresh);
+    }
 
     function funDetails(e) {
         let vSelected = e.options[e.selectedIndex].value;
         let aSelected = e.getAttribute("data-peer");
         disPT[aSelected].innerHTML = funRandomModSel() + " " + carlist[vSelected].vDesc;
-        disPT[aSelected].innerHTML += "\nLVL " + vehWraps[aSelected].getAttribute("data-lvl");
+        disPT[aSelected].innerHTML += " \nLVL " + vehWraps[aSelected].getAttribute("data-lvl");
         if(gameVars.selFlag){
             funDisableSel();
         }
-        // console.log(aSelected);
+    }
+
+    function funRefreshDetails(e) {
+        let vSelected = e.options[e.selectedIndex].value;
+        let aSelected = e.getAttribute("data-peer");
+        let modifierText = disPT[aSelected].innerHTML.split(" ", 1)[0];
+        disPT[aSelected].innerHTML = modifierText + " " + carlist[vSelected].vDesc;
+        disPT[aSelected].innerHTML += " \nLVL " + vehWraps[aSelected].getAttribute("data-lvl");
     }
 
     function funVehInfo(e) {
@@ -239,11 +259,11 @@
         let textbox = document.querySelector(`[data-peer-text="${aSelected}"]`);
         let vSelected = dropdown.options[dropdown.selectedIndex].value;
         let vModifier = textbox.innerHTML.split(" ", 1).toString();
-        let mPlus = modifiers[vModifier].mPlus;
-        let mMinus = modifiers[vModifier].mMinus;
         let vLvl = vehWraps[aSelected].getAttribute("data-lvl");
+        let mPlus = modifiers[vModifier].mPlus * parseInt(vLvl, 10);
+        let mMinus = modifiers[vModifier].mMinus * parseInt(vLvl, 10);
         let vXP = parseInt(vehWraps[aSelected].getAttribute("data-xp"), 10);
-        let xpNeeded = 3 + parseInt(vLvl, 10);
+        let xpNeeded = funXPNeeded(parseInt(vLvl, 10));
         let lvlString = "\nLVL " + vLvl;
         funToggleDisplay(modInfo);
         modInfo.innerHTML = `
@@ -254,7 +274,6 @@
             <p>XP ${vXP}/${xpNeeded} To Level Up</p>
             <button onclick="funToggleDisplay(modInfo)" id="infoClose">Close</button>
         `;
-        // console.log(vSelected);
     }
 
     function funRecExpense() {
@@ -268,23 +287,68 @@
             gameVars.points -= pointsSubtracted;
         }
     }
+
+    function funSynMapSet() {
+        let a,b;
+        mapSyn.clear();
+        for(let i = 0; i<gameVars.numBoxGen; i++){
+            a = disPT[i].innerHTML.split(" ", 3)[1];
+            b = disPT[i].innerHTML.split(" ", 3)[2];
+            
+            //Push A
+            if(mapSyn.has(a)){
+                mapSyn.set(a, mapSyn.get(a)+1);
+            }
+            else {mapSyn.set(a, 1);}
+            
+            //Push B
+            if(mapSyn.has(b)){
+                mapSyn.set(b, mapSyn.get(b)+1);
+            }
+            else {mapSyn.set(b, 1);}
+        }
+    }
+
+    function funXPCalc(slotSelected) {
+        let dropdown = document.querySelector(`[data-peer="${slotSelected}"]`);
+        let vLvl = parseInt(vehWraps[slotSelected].getAttribute("data-lvl"), 10);
+        let vXP = parseInt(vehWraps[slotSelected].getAttribute("data-xp"), 10);
+        let vSelected = dropdown.options[dropdown.selectedIndex].value;
+        let vSyn = carlist[vSelected].vSynergy;
+        for(let s in vSyn){
+            if(mapSyn.has(vSyn[s])){
+                vXP+= mapSyn.get(vSyn[s]);
+                output.innerHTML += `${mapSyn.get(vSyn[s])}&#8593;XP from ${vSyn[s]} Synergy&#8593;\n`;
+            }
+        }
+        if(vXP >= funXPNeeded(vLvl)){
+            vXP -= funXPNeeded(vLvl);
+            vLvl += 1;
+            vehWraps[slotSelected].setAttribute("data-lvl", vLvl);
+            output.innerHTML += `&#8593;Leveled UP to LVL ${vLvl}&#8593;&#8593;\n`;
+            funRefreshDetails(dropdown);
+        }
+        vehWraps[slotSelected].setAttribute("data-xp", vXP);
+    }
     
     function funPlay() {
         let dropdowns = document.querySelectorAll('[data-peer]');
         let temp = 0;
         gameVars.selFlag = 1;
+        funSynMapSet();
         output.innerHTML += `Turn ${gameVars.turns}:-\n`;
         gameVars.turns+=1;
         for(let i in dropdowns){
             if(dropdowns[i].options){
                 output.innerHTML += `${dropdowns[i].options[dropdowns[i].selectedIndex].innerHTML} `;
                 temp = carlist[dropdowns[i].options[dropdowns[i].selectedIndex].value].vScore();
+                temp = temp * parseInt(vehWraps[i].getAttribute("data-lvl"), 10);
                 if(temp>0){temp = temp * (modifiers[disPT[i].innerHTML.split(" ", 1).toString()].mPlus)}
                 else{temp = temp * (modifiers[disPT[i].innerHTML.split(" ", 1).toString()].mMinus)}
                 temp = Math.floor(temp);
                 output.innerHTML += `${temp} `;
-                // output.innerHTML += `${carlist[dropdowns[i].options[dropdowns[i].selectedIndex].value].vScore()} `;
                 gameVars.points += temp;
+                funXPCalc(i);
             }
         }
         funRecExpense();
@@ -318,6 +382,11 @@
         gameVars[key] = initVars[key];
         });
         
+        for(let i=0; i<gameVars.numBoxGen; i++){
+            vehWraps[i].setAttribute("data-xp", 0);
+            vehWraps[i].setAttribute("data-lvl", 1);
+        }
+
         let dropdowns = document.querySelectorAll('[data-peer]');
         for(let i in dropdowns){
             if(dropdowns[i].options){
@@ -325,7 +394,7 @@
             }
         }
         funEnableSel();
-        
+
         btnReset.setAttribute('style', 'display: none');
         btnPlay.setAttribute('style', 'display: initial');
         btnPlay.disabled = false;
@@ -337,6 +406,7 @@
             <h2>Welcome to the MM2 RNG Game</h2>
             <p>Choose vehicles and play to earn Points<br>
             The faster the car the riskier it is to use<br>
+            The vehicles are arranged in decreasing order of Risk/Reward<br>
             Prepare for recurring expenses every few turns<br>
             Check your vehicle stats using the car button<br><br>
             Get a random score modifier every time you change your vehicle after the first turn<br><br>
@@ -354,7 +424,6 @@
                     dropdowns[i].options[dropdowns[i].options.length] = new Option(carlist[j].vName, j);
             }
         } 
-        // console.log(dropdowns);
         output.innerHTML += `Your Starting Points are ${gameVars.points}\n`;
         funWelcome();
     };
