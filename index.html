@@ -75,12 +75,15 @@
             vName:"GTR",
             vFullName: "Panoz GTR-1",
             vDesc:"Race Car",
+            vPlusPercent: 29,
+            vPlusPoint: 70,
+            vMinusPoint: -60,
             vFullDesc:"30% 70 points, 70% -60 points",
             vSynergy: ["Supply","Stylish"],
             vScore: function() {
-                let score = 70;
+                let score = this.vPlusPoint;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>29){score = -60;}
+                if(roll>this.vPlusPercent){score = this.vMinusPoint;}
                 return score;
             }
         },
@@ -89,12 +92,15 @@
             vName:"Panoz",
             vFullName: "Panoz Roadster",
             vDesc:"Stylish Car",
+            vPlusPercent: 39,
+            vPlusPoint: 60,
+            vMinusPoint: -50,
             vFullDesc:"40% 60 points, 60% -50 points",
             vSynergy: ["Supply","Race"],
             vScore: function() {
-                let score = 60;
+                let score = this.vPlusPoint;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>39){score = -50;}
+                if(roll>this.vPlusPercent){score = this.vMinusPoint;}
                 return score;
             }
         },
@@ -103,12 +109,15 @@
             vName:"Beetle",
             vFullName: "Volkswagen New Beetle",
             vDesc:"Family Car",
+            vPlusPercent: 44,
+            vPlusPoint: 55,
+            vMinusPoint: -45,
             vFullDesc:"45% 55 points, 55% -45 points",
             vSynergy: ["Public"],
             vScore: function() {
-                let score = 55;
+                let score = this.vPlusPoint;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>44){score = -45;}
+                if(roll>this.vPlusPercent){score = this.vMinusPoint;}
                 return score;
             }
         },
@@ -117,12 +126,15 @@
             vName:"Mustang",
             vFullName: "Ford Mustang GT 97",
             vDesc:"Muscle Car",
+            vPlusPercent: 49,
+            vPlusPoint: 50,
+            vMinusPoint: -50,
             vFullDesc:"50% 50 points, 50% -50 points",
             vSynergy: ["Supply","Family"],
             vScore: function() {
-                let score = 50;
+                let score = this.vPlusPoint;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>49){score = -50;}
+                if(roll>this.vPlusPercent){score = this.vMinusPoint;}
                 return score;
             }
         },
@@ -131,12 +143,15 @@
             vName:"Bus",
             vFullName: "City Bus",
             vDesc:"Public Transport",
+            vPlusPercent: 59,
+            vPlusPoint: 20,
+            vMinusPoint: -20,
             vFullDesc:"60% 20 points, 40% -20 points",
             vSynergy: ["Family"],
             vScore: function() {
-                let score = 20;
+                let score = this.vPlusPoint;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>59){score = -20;}
+                if(roll>this.vPlusPercent){score = this.vMinusPoint;}
                 return score;
             }
         },
@@ -145,12 +160,15 @@
             vName:"Freightliner",
             vFullName: "Freightliner Century",
             vDesc:"Supply Truck",
+            vPlusPercent: 94,
+            vPlusPoint: 10,
+            vMinusPoint: -30,
             vFullDesc:"95% 10 points, 5% -30 points",
             vSynergy: ["Public","Transport","Family"],
             vScore: function() {
-                let score = 10;
+                let score = this.vPlusPoint;
                 let roll = Math.floor(Math.random() * 100);
-                if(roll>94){score = -30;}
+                if(roll>this.vPlusPercent){score = this.vMinusPoint;}
                 return score;
             }
         }
@@ -260,17 +278,17 @@
         let vSelected = dropdown.options[dropdown.selectedIndex].value;
         let vModifier = textbox.innerHTML.split(" ", 1).toString();
         let vLvl = vehWraps[aSelected].getAttribute("data-lvl");
-        let mPlus = modifiers[vModifier].mPlus * parseInt(vLvl, 10);
-        let mMinus = modifiers[vModifier].mMinus * parseInt(vLvl, 10);
+        let mPlus = Math.floor(modifiers[vModifier].mPlus * parseInt(vLvl, 10) * carlist[vSelected].vPlusPoint);
+        let mMinus = Math.floor(modifiers[vModifier].mMinus * parseInt(vLvl, 10) * carlist[vSelected].vMinusPoint);
         let vXP = parseInt(vehWraps[aSelected].getAttribute("data-xp"), 10);
         let xpNeeded = funXPNeeded(parseInt(vLvl, 10));
         let lvlString = "\nLVL " + vLvl;
         funToggleDisplay(modInfo);
         modInfo.innerHTML = `
             <img src="${carlist[vSelected].vImage}" id="infoImage"></img>
-            <div id="infoName">${carlist[vSelected].vFullName}</div>
-            <div id="infoDesc">${vModifier}(+${mPlus}/-${mMinus}) ${lvlString} ${carlist[vSelected].vDesc}</div>
-            <div id="infoFullDesc">${carlist[vSelected].vFullDesc}</div>
+            <div id="infoName">${carlist[vSelected].vFullName} [${carlist[vSelected].vSynergy}]</div>
+            <div id="infoDesc">${vModifier} ${lvlString} ${carlist[vSelected].vDesc}</div>
+            <div id="infoFullDesc">${carlist[vSelected].vPlusPercent+1}% ${mPlus} Points ${99-carlist[vSelected].vPlusPercent}% ${mMinus} Points</div>
             <p>XP ${vXP}/${xpNeeded} To Level Up</p>
             <button onclick="funToggleDisplay(modInfo)" id="infoClose">Close</button>
         `;
