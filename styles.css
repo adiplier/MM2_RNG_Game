@@ -67,6 +67,12 @@ button:disabled{
 #btnReset{
     display: none;
 }
+#divLife{
+    position:absolute;
+    top:2rem;
+    left:2rem;
+    font-size: large;
+}
 #infoDesc{
     text-align: center;
 }
@@ -98,5 +104,9 @@ button:disabled{
     }
     button:hover{
         background-color: rgb(107, 107, 107);
+    }
+    #divLife{
+        top:1.5rem;
+        font-size: medium;
     }
 }

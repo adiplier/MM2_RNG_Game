@@ -10,6 +10,7 @@
 <body class="back">
     <div class="centerbox">
         <div class="container"></div>
+        <div id="divLife"></div>
         <button id="btnPlay" onclick="funPlay()">Play</button>
         <button id="btnReset" onclick="funReset()">Restart</button>
         <textarea class="output" name="" id="output" rows="10" disabled></textarea>
@@ -185,6 +186,7 @@
         winPoints: 5000,
         lvlThresh: 3,
         lvlBias: 1,
+        lives: 3,
     };
 
     // let gameVars = Object.create(initVars);
@@ -209,6 +211,7 @@
     const btnPlay = document.getElementById("btnPlay");
     const btnReset = document.getElementById("btnReset");
     const modInfo = document.getElementById("modInfo");
+    const divLife = document.getElementById("divLife");
     
     function funDisableSel() {
         let dropdowns = document.querySelectorAll('[data-peer]');
@@ -348,6 +351,17 @@
         }
         vehWraps[slotSelected].setAttribute("data-xp", vXP);
     }
+
+    function funLifeDisplay() {
+        let hearts = '';
+        for(let i=0;i<initVars.lives;i++){
+            if(i<gameVars.lives){
+                hearts += '❤️';
+            }
+            else hearts +='&#128420;';
+        }
+        divLife.innerHTML = `${hearts}`;
+    }
     
     function funPlay() {
         let dropdowns = document.querySelectorAll('[data-peer]');
@@ -372,11 +386,16 @@
         funRecExpense();
         output.innerHTML += `${gameVars.points}`;
         output.innerHTML += `\n`;
-        output.scrollTop = output.scrollHeight;
-
+        
         funEnableSel();
-
-        if(gameVars.points<1 || gameVars.turns>=gameVars.maxTurns){
+        
+        if(gameVars.points<1){
+            gameVars.lives -= 1;
+            funLifeDisplay();
+            output.innerHTML += `❤️ lost\n`;
+        }
+        
+        if(gameVars.lives<1 || gameVars.turns>=gameVars.maxTurns){
             btnPlay.disabled = true;
             output.innerHTML += `Game Over`;
             setTimeout( ()=> {
@@ -392,6 +411,7 @@
                 btnReset.setAttribute('style', 'display: initial');} , 600);
             funDisableSel();
         }
+        output.scrollTop = output.scrollHeight;
     }
     
     function funReset() {
@@ -412,6 +432,7 @@
             }
         }
         funEnableSel();
+        funLifeDisplay();
 
         btnReset.setAttribute('style', 'display: none');
         btnPlay.setAttribute('style', 'display: initial');
@@ -443,6 +464,7 @@
             }
         } 
         output.innerHTML += `Your Starting Points are ${gameVars.points}\n`;
+        funLifeDisplay();
         funWelcome();
     };
 </script>
