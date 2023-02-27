@@ -187,6 +187,7 @@
         lvlThresh: 3,
         lvlBias: 1,
         lives: 5,
+        disableXPTransfer: 1,
     };
 
     // let gameVars = Object.create(initVars);
@@ -201,12 +202,17 @@
                 <select onchange="funDetails(this)" data-peer="${i}"></select>
                 <div onclick="funVehInfo(this)" data-peer-info="${i}">&#128663;</div>
             </div>
-            <p class="desc" data-peer-text="${i}">Standard ${carlist[Object.keys(carlist)[0]].vDesc} \nLVL 1</p>
+            <p class="desc" data-peer-text="${i}">Standard ${carlist[Object.keys(carlist)[0]].vDesc}</p>
+            <div class="subwrapper">
+                <progress class="prog-xp" value="0" max="6" data-peer-progress="${i}"></progress>
+                <div class="divLvl" data-peer-div-lvl="${i}">LVL 1</div>
+            </div>
         </div>
         `;
     }
     const disPT = document.querySelectorAll('[data-peer-text]');
     const vehWraps = document.querySelectorAll('[data-peer-div]');
+    const divLvls = document.querySelectorAll('[data-peer-div-lvl]');
     const output = document.getElementById("output");
     const btnPlay = document.getElementById("btnPlay");
     const btnReset = document.getElementById("btnReset");
@@ -252,15 +258,25 @@
         e.style.display = (e.style.display == 'none') ? 'flex' : 'none';
     }
     
-    function funXPNeeded(lvl){
+    function funXPNeeded(lvl) {
         return Math.floor((lvl + gameVars.lvlBias)*gameVars.lvlThresh);
+    }
+
+    function funResetLevels(i) {
+        vehWraps[i].setAttribute("data-xp", 0);
+        vehWraps[i].setAttribute("data-lvl", 1);
+        document.querySelector(`[data-peer-progress="${i}"]`).setAttribute("value", 0);
+        document.querySelector(`[data-peer-progress="${i}"]`).setAttribute("max", funXPNeeded(1));
     }
 
     function funDetails(e) {
         let vSelected = e.options[e.selectedIndex].value;
         let aSelected = e.getAttribute("data-peer");
         disPT[aSelected].innerHTML = funRandomModSel() + " " + carlist[vSelected].vDesc;
-        disPT[aSelected].innerHTML += " \nLVL " + vehWraps[aSelected].getAttribute("data-lvl");
+        if(gameVars.disableXPTransfer){
+            funResetLevels(aSelected);
+        }
+        divLvls[aSelected].innerHTML = " \nLVL " + vehWraps[aSelected].getAttribute("data-lvl");
         if(gameVars.selFlag){
             funDisableSel();
         }
@@ -271,7 +287,7 @@
         let aSelected = e.getAttribute("data-peer");
         let modifierText = disPT[aSelected].innerHTML.split(" ", 1)[0];
         disPT[aSelected].innerHTML = modifierText + " " + carlist[vSelected].vDesc;
-        disPT[aSelected].innerHTML += " \nLVL " + vehWraps[aSelected].getAttribute("data-lvl");
+        divLvls[aSelected].innerHTML = " \nLVL " + vehWraps[aSelected].getAttribute("data-lvl");
     }
 
     function funVehInfo(e) {
@@ -335,6 +351,7 @@
 
     function funXPCalc(slotSelected) {
         let dropdown = document.querySelector(`[data-peer="${slotSelected}"]`);
+        let xpBar = document.querySelector(`[data-peer-progress="${slotSelected}"]`);
         let vLvl = parseInt(vehWraps[slotSelected].getAttribute("data-lvl"), 10);
         let vXP = parseInt(vehWraps[slotSelected].getAttribute("data-xp"), 10);
         let vSelected = dropdown.options[dropdown.selectedIndex].value;
@@ -342,6 +359,7 @@
         for(let s in vSyn){
             if(mapSyn.has(vSyn[s])){
                 vXP+= mapSyn.get(vSyn[s]);
+                xpBar.setAttribute("value", vXP);
                 output.innerHTML += `${mapSyn.get(vSyn[s])}&#8593;XP from ${vSyn[s]} Synergy&#8593;\n`;
             }
         }
@@ -349,6 +367,8 @@
             vXP -= funXPNeeded(vLvl);
             vLvl += 1;
             vehWraps[slotSelected].setAttribute("data-lvl", vLvl);
+            xpBar.setAttribute("value", vXP);
+            xpBar.setAttribute("max", funXPNeeded(vLvl));
             output.innerHTML += `&#8593;Leveled UP to LVL ${vLvl}&#8593;&#8593;\n`;
             funRefreshDetails(dropdown);
         }
@@ -424,8 +444,7 @@
         });
         
         for(let i=0; i<gameVars.numBoxGen; i++){
-            vehWraps[i].setAttribute("data-xp", 0);
-            vehWraps[i].setAttribute("data-lvl", 1);
+            funResetLevels(i);
         }
 
         let dropdowns = document.querySelectorAll('[data-peer]');
@@ -466,6 +485,9 @@
                     dropdowns[i].options[dropdowns[i].options.length] = new Option(carlist[j].vName, j);
             }
         } 
+        for(let i=0; i<gameVars.numBoxGen; i++){
+            document.querySelector(`[data-peer-progress="${i}"]`).setAttribute("max", funXPNeeded(1));
+        }
         output.innerHTML += `Your Starting Points are ${gameVars.points}\n`;
         funLifeDisplay();
         funWelcome();

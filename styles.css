@@ -11,7 +11,7 @@
     background-color: rgb(211, 211, 211);
     border-radius: 2rem;
     height: 70vh;
-    width: 32vw;
+    width: 35vw;
     align-items: center;
     justify-content: space-evenly;
     box-shadow: 0 1rem 1rem #00000066;
@@ -26,6 +26,14 @@
 }
 .desc{
     font-size: clamp(0.75rem, 1vw,2rem);
+}
+.divLvl{
+    font-size: 0.75rem;
+    padding: 0rem 0rem 0rem 1rem;
+}
+.prog-xp{
+    width: 5rem;
+    accent-color: red;
 }
 .modal{
     z-index: 99;
@@ -93,14 +101,18 @@ button:disabled{
     background-color: rgb(170, 170, 170);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
     .centerbox{
         width: 60vw;
+        height: 76vh;
     }
     .container{
         width: inherit;
         display:flex;
         flex-direction: column;
+    }
+    .prog-xp{
+        width: 8rem;
     }
     button:hover{
         background-color: rgb(107, 107, 107);
