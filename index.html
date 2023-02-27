@@ -289,10 +289,12 @@
         funToggleDisplay(modInfo);
         modInfo.innerHTML = `
             <img src="${carlist[vSelected].vImage}" id="infoImage"></img>
-            <div id="infoName">${carlist[vSelected].vFullName} [${carlist[vSelected].vSynergy}]</div>
-            <div id="infoDesc">${vModifier} ${lvlString} ${carlist[vSelected].vDesc}</div>
+            <div id="infoName">${carlist[vSelected].vFullName}</div>
+            <p>Attr: <b>${carlist[vSelected].vDesc}</b></p>
+            <div id="infoDesc">${vModifier} ${lvlString}</div>
             <div id="infoFullDesc">${carlist[vSelected].vPlusPercent+1}% ${mPlus} Points ${99-carlist[vSelected].vPlusPercent}% ${mMinus} Points</div>
             <p>XP ${vXP}/${xpNeeded} To Level Up</p>
+            <p>Synergies<i> ${carlist[vSelected].vSynergy}</i></p>
             <button onclick="funToggleDisplay(modInfo)" id="infoClose">Close</button>
         `;
     }
