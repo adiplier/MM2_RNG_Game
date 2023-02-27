@@ -280,6 +280,7 @@
         let textbox = document.querySelector(`[data-peer-text="${aSelected}"]`);
         let vSelected = dropdown.options[dropdown.selectedIndex].value;
         let vModifier = textbox.innerHTML.split(" ", 1).toString();
+        let vAttr = carlist[vSelected].vDesc.split(" ", 2);
         let vLvl = vehWraps[aSelected].getAttribute("data-lvl");
         let mPlus = Math.floor(modifiers[vModifier].mPlus * parseInt(vLvl, 10) * carlist[vSelected].vPlusPoint);
         let mMinus = Math.floor(modifiers[vModifier].mMinus * parseInt(vLvl, 10) * carlist[vSelected].vMinusPoint);
@@ -290,11 +291,11 @@
         modInfo.innerHTML = `
             <img src="${carlist[vSelected].vImage}" id="infoImage"></img>
             <div id="infoName">${carlist[vSelected].vFullName}</div>
-            <p>Attr: <b>${carlist[vSelected].vDesc}</b></p>
+            <p>Attr: <b>[${vAttr}]</b></p>
             <div id="infoDesc">${vModifier} ${lvlString}</div>
-            <div id="infoFullDesc">${carlist[vSelected].vPlusPercent+1}% ${mPlus} Points ${99-carlist[vSelected].vPlusPercent}% ${mMinus} Points</div>
-            <p>XP ${vXP}/${xpNeeded} To Level Up</p>
-            <p>Synergies<i> ${carlist[vSelected].vSynergy}</i></p>
+            <div id="infoFullDesc">${carlist[vSelected].vPlusPercent+1}% ${mPlus} Points ${99-carlist[vSelected].vPlusPercent}% ${mMinus} Points
+            <p>XP ${vXP}/${xpNeeded} To Level Up</p></div>
+            <p>Synergies:<i> ${carlist[vSelected].vSynergy}</i></p>
             <button onclick="funToggleDisplay(modInfo)" id="infoClose">Close</button>
         `;
     }
