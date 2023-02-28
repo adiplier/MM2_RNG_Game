@@ -28,7 +28,7 @@
         Superb: {
             mPlus: 4,
             mMinus: 0.2,
-            mRarity: 5
+            mRarity: 2
         },
         Shiny: {
             mPlus: 3,
@@ -38,7 +38,7 @@
         Spotless: {
             mPlus: 1.5,
             mMinus: 0.5,
-            mRarity: 10
+            mRarity: 12
         },
         Scratched: {
             mPlus: 0.8,
@@ -96,7 +96,7 @@
             vPlusPoint: 70,
             vMinusPoint: -60,
             vFullDesc:"30% 70 points, 70% -60 points",
-            vSynergy: ["Supply","Stylish"],
+            vSynergy: ["Transport","Stylish"],
             vScore: function() {
                 let score = this.vPlusPoint;
                 let roll = Math.floor(Math.random() * 100);
@@ -113,7 +113,7 @@
             vPlusPoint: 60,
             vMinusPoint: -50,
             vFullDesc:"40% 60 points, 60% -50 points",
-            vSynergy: ["Supply","Race","Cute"],
+            vSynergy: ["Car"],
             vScore: function() {
                 let score = this.vPlusPoint;
                 let roll = Math.floor(Math.random() * 100);
@@ -210,17 +210,19 @@
 
     const initVars = {
         numBoxGen: 3,
-        points: 100,
+        points: 200,
         expenseX: 10,
         selFlag: 0,
         turns: 1,
         expenseTurns: 5,
         maxTurns: 90,
-        winPoints: 5000,
+        winPoints: 5500,
         lvlThresh: 3,
         lvlBias: 1,
         lives: 5,
         disableXPTransfer: 1,
+        scorePerLife: 500,
+        scorePerTurn: 20,
     };
 
     // let gameVars = Object.create(initVars);
@@ -409,6 +411,12 @@
         vehWraps[slotSelected].setAttribute("data-xp", vXP);
     }
 
+    function funFinalScore() {
+        let num = 0;
+        num = (gameVars.lives*gameVars.scorePerLife) + ((gameVars.maxTurns - gameVars.turns)*gameVars.scorePerTurn) + gameVars.points;
+        return "\n\n❤️X"+gameVars.lives+":" + (gameVars.lives*gameVars.scorePerLife) + " +\n&#x1F3B2;X"+(gameVars.maxTurns - gameVars.turns)+":"+ ((gameVars.maxTurns - gameVars.turns)*gameVars.scorePerTurn) + " +\nPoints:"+ gameVars.points + " = $" + num + "\n";
+    }
+
     function funLifeDisplay() {
         let hearts = '';
         for(let i=0;i<initVars.lives;i++){
@@ -466,6 +474,7 @@
         if(gameVars.points>=gameVars.winPoints){
             btnPlay.disabled = true;
             output.innerHTML += `You Won on Turn ${gameVars.turns} with ${gameVars.points} Points!!`;
+            output.innerHTML += `${funFinalScore()}`;
             setTimeout( ()=> {
                 btnPlay.setAttribute('style', 'display: none');
                 btnReset.setAttribute('style', 'display: initial');} , 600);
