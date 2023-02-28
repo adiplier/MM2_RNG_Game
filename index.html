@@ -11,6 +11,7 @@
     <div class="centerbox">
         <div class="container"></div>
         <div id="divLife"></div>
+        <div id="divScore"></div>
         <button id="btnPlay" onclick="funPlay()">Play</button>
         <button id="btnReset" onclick="funReset()">Restart</button>
         <textarea class="output" name="" id="output" rows="10" disabled></textarea>
@@ -19,10 +20,15 @@
 </body>
 <script>
     const modifiers = {
+        Lucky: {
+            mPlus: 4,
+            mMinus: -1,
+            mRarity: 1
+        },
         Superb: {
             mPlus: 4,
             mMinus: 0.2,
-            mRarity: 6
+            mRarity: 5
         },
         Shiny: {
             mPlus: 3,
@@ -62,7 +68,17 @@
         Schizophrenic: {
             mPlus: -5,
             mMinus: -10,
-            mRarity: 3
+            mRarity: 2
+        },
+        Professional: {
+            mPlus: 8,
+            mMinus: 2,
+            mRarity: 2
+        },
+        HighRoller: {
+            mPlus: 10,
+            mMinus: 10,
+            mRarity: 1
         },
         Standard: {
             mPlus: 1,
@@ -97,7 +113,7 @@
             vPlusPoint: 60,
             vMinusPoint: -50,
             vFullDesc:"40% 60 points, 60% -50 points",
-            vSynergy: ["Supply","Race"],
+            vSynergy: ["Supply","Race","Cute"],
             vScore: function() {
                 let score = this.vPlusPoint;
                 let roll = Math.floor(Math.random() * 100);
@@ -109,6 +125,23 @@
             vImage:"https://cdn.discordapp.com/emojis/241009093437947904.webp",
             vName:"Beetle",
             vFullName: "Volkswagen New Beetle",
+            vDesc:"Cute Car",
+            vPlusPercent: 41,
+            vPlusPoint: 58,
+            vMinusPoint: -48,
+            vFullDesc:"N/A",
+            vSynergy: ["Race","Stylish","Family"],
+            vScore: function() {
+                let score = this.vPlusPoint;
+                let roll = Math.floor(Math.random() * 100);
+                if(roll>this.vPlusPercent){score = this.vMinusPoint;}
+                return score;
+            }
+        },
+        vpcaddie: {
+            vImage:"https://cdn.discordapp.com/emojis/241010388341096448.webp",
+            vName:"Cadillac",
+            vFullName: "Cadillac Eldorado",
             vDesc:"Family Car",
             vPlusPercent: 44,
             vPlusPoint: 55,
@@ -218,6 +251,7 @@
     const btnReset = document.getElementById("btnReset");
     const modInfo = document.getElementById("modInfo");
     const divLife = document.getElementById("divLife");
+    const divScore = document.getElementById("divScore");
     
     function funDisableSel() {
         let dropdowns = document.querySelectorAll('[data-peer]');
@@ -320,10 +354,10 @@
         let currentTurn = gameVars.turns - 1;
         let pointsSubtracted = (gameVars.expenseX * currentTurn);
         if(currentTurn%gameVars.expenseTurns == gameVars.expenseTurns-1){
-            output.innerHTML += `\nExpense of ${pointsSubtracted+gameVars.expenseX} coming up!\n`;
+            output.innerHTML += `&#x25FB; !Expense of ${pointsSubtracted+gameVars.expenseX} coming up!\n`;
         }
         if(currentTurn%gameVars.expenseTurns == 0){
-            output.innerHTML += `\nBusiness Expense ${gameVars.points} - ${pointsSubtracted} \n`;
+            output.innerHTML += `&#x25FB; !Business Expense ${gameVars.points} - ${pointsSubtracted} \n`;
             gameVars.points -= pointsSubtracted;
         }
     }
@@ -360,7 +394,7 @@
             if(mapSyn.has(vSyn[s])){
                 vXP+= mapSyn.get(vSyn[s]);
                 xpBar.setAttribute("value", vXP);
-                output.innerHTML += `${mapSyn.get(vSyn[s])}&#8593;XP from ${vSyn[s]} Synergy&#8593;\n`;
+                output.innerHTML += `&#x25CB; ${mapSyn.get(vSyn[s])}&#8593;XP from ${vSyn[s]} Synergy&#8593;\n`;
             }
         }
         if(vXP >= funXPNeeded(vLvl)){
@@ -369,7 +403,7 @@
             vehWraps[slotSelected].setAttribute("data-lvl", vLvl);
             xpBar.setAttribute("value", vXP);
             xpBar.setAttribute("max", funXPNeeded(vLvl));
-            output.innerHTML += `&#8593;Leveled UP to LVL ${vLvl}&#8593;&#8593;\n`;
+            output.innerHTML += `&#x25CB; &#8593;Leveled UP to LVL ${vLvl}&#8593;&#8593;\n`;
             funRefreshDetails(dropdown);
         }
         vehWraps[slotSelected].setAttribute("data-xp", vXP);
@@ -385,30 +419,33 @@
         }
         divLife.innerHTML = `${hearts}`;
     }
+
+    function funScoreDisplay() {
+        divScore.innerHTML = `Score: ${gameVars.points}`;
+    }
     
     function funPlay() {
         let dropdowns = document.querySelectorAll('[data-peer]');
         let temp = 0;
         gameVars.selFlag = 1;
         funSynMapSet();
-        output.innerHTML += `Turn ${gameVars.turns}:-\n`;
+        output.innerHTML += `Turn ${gameVars.turns}/${gameVars.maxTurns}:-\n`;
         gameVars.turns+=1;
         for(let i in dropdowns){
             if(dropdowns[i].options){
-                output.innerHTML += `${dropdowns[i].options[dropdowns[i].selectedIndex].innerHTML} `;
+                output.innerHTML += `&#x25CF; ${dropdowns[i].options[dropdowns[i].selectedIndex].innerHTML} `;
                 temp = carlist[dropdowns[i].options[dropdowns[i].selectedIndex].value].vScore();
                 temp = temp * parseInt(vehWraps[i].getAttribute("data-lvl"), 10);
                 if(temp>0){temp = temp * (modifiers[disPT[i].innerHTML.split(" ", 1).toString()].mPlus)}
                 else{temp = temp * (modifiers[disPT[i].innerHTML.split(" ", 1).toString()].mMinus)}
                 temp = Math.floor(temp);
-                output.innerHTML += `${temp} `;
+                output.innerHTML += `${temp}\n`;
                 gameVars.points += temp;
                 funXPCalc(i);
             }
         }
         funRecExpense();
-        output.innerHTML += `${gameVars.points}`;
-        output.innerHTML += `\n`;
+        output.innerHTML += `&#x25CF; Points:- ${gameVars.points}\n`;
         
         funEnableSel();
         
@@ -420,7 +457,7 @@
         
         if(gameVars.lives<1 || gameVars.turns>=gameVars.maxTurns){
             btnPlay.disabled = true;
-            output.innerHTML += `Game Over`;
+            output.innerHTML += `Game Over on Turn ${gameVars.turns}`;
             setTimeout( ()=> {
                 btnPlay.setAttribute('style', 'display: none');
                 btnReset.setAttribute('style', 'display: initial');} , 600);
@@ -434,6 +471,7 @@
                 btnReset.setAttribute('style', 'display: initial');} , 600);
             funDisableSel();
         }
+        funScoreDisplay();
         output.scrollTop = output.scrollHeight;
     }
     
@@ -459,7 +497,9 @@
         btnReset.setAttribute('style', 'display: none');
         btnPlay.setAttribute('style', 'display: initial');
         btnPlay.disabled = false;
+        funScoreDisplay();
         output.innerHTML = `Your Starting Points are ${gameVars.points}\n`;
+        output.innerHTML += `Max Number of Turns are ${gameVars.maxTurns}\n`;
     }
 
     function funWelcome() {
@@ -488,8 +528,10 @@
         for(let i=0; i<gameVars.numBoxGen; i++){
             document.querySelector(`[data-peer-progress="${i}"]`).setAttribute("max", funXPNeeded(1));
         }
-        output.innerHTML += `Your Starting Points are ${gameVars.points}\n`;
-        funLifeDisplay();
+        // funScoreDisplay();
+        // output.innerHTML += `Your Starting Points are ${gameVars.points}\n`;
+        // funLifeDisplay();
+        funReset();
         funWelcome();
     };
 </script>

@@ -55,6 +55,12 @@
     box-sizing: border-box;
     width: 100%;
 }
+.pc-only{
+    display: block;
+}
+.mobile-only{
+    display: none;
+}
 button{
     border-radius: 50px;
     background-color: rgb(107, 107, 107);
@@ -79,6 +85,12 @@ button:disabled{
     position:absolute;
     top:2rem;
     left:2rem;
+    font-size: large;
+}
+#divScore{
+    position:absolute;
+    top:2rem;
+    right:2rem;
     font-size: large;
 }
 #infoDesc{
@@ -114,11 +126,32 @@ button:disabled{
     .prog-xp{
         width: 8rem;
     }
+    .pc-only{
+        display: none;
+    }
+    .mobile-only{
+        display: block;
+    }
     button:hover{
         background-color: rgb(107, 107, 107);
     }
     #divLife{
         top:1.5rem;
+        font-size: medium;
+    }
+    #divScore{
+        top:1.5rem;
+        font-size: medium;
+    }
+}
+
+@media (max-width: 690px) {
+    #divLife{
+        top:1rem;
+        font-size: medium;
+    }
+    #divScore{
+        top:1rem;
         font-size: medium;
     }
 }
