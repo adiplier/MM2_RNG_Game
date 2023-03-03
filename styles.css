@@ -26,6 +26,7 @@
 }
 .desc{
     font-size: clamp(0.75rem, 1vw,2rem);
+    min-height: 2rem;
 }
 .divLvl{
     font-size: 0.75rem;

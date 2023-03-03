@@ -83,7 +83,7 @@
         Standard: {
             mPlus: 1,
             mMinus: 1,
-            mRarity: 16
+            mRarity: 19
         }
     }
     const carlist = {
@@ -216,8 +216,8 @@
         turns: 1,
         expenseTurns: 5,
         maxTurns: 90,
-        winPoints: 5500,
-        lvlThresh: 3,
+        winPoints: 6500,
+        lvlThresh: 4,
         lvlBias: 1,
         lives: 5,
         disableXPTransfer: 1,
@@ -336,6 +336,11 @@
         let vLvl = vehWraps[aSelected].getAttribute("data-lvl");
         let mPlus = Math.floor(modifiers[vModifier].mPlus * parseInt(vLvl, 10) * carlist[vSelected].vPlusPoint);
         let mMinus = Math.floor(modifiers[vModifier].mMinus * parseInt(vLvl, 10) * carlist[vSelected].vMinusPoint);
+        let lvlFactor = Math.floor(((100-carlist[vSelected].vPlusPercent)/10)*(parseInt(vLvl, 10)-1));
+        let pPlus = carlist[vSelected].vPlusPercent+1+lvlFactor;
+        if(pPlus>100){pPlus = 100;}
+        let pMinus = 99-carlist[vSelected].vPlusPercent-lvlFactor;
+        if(pMinus<0){pMinus = 0;}
         let vXP = parseInt(vehWraps[aSelected].getAttribute("data-xp"), 10);
         let xpNeeded = funXPNeeded(parseInt(vLvl, 10));
         let lvlString = "\nLVL " + vLvl;
@@ -345,7 +350,7 @@
             <div id="infoName">${carlist[vSelected].vFullName}</div>
             <p>Attr: <b>[${vAttr}]</b></p>
             <div id="infoDesc">${vModifier} ${lvlString}</div>
-            <div id="infoFullDesc">${carlist[vSelected].vPlusPercent+1}% ${mPlus} Points ${99-carlist[vSelected].vPlusPercent}% ${mMinus} Points
+            <div id="infoFullDesc">${pPlus}% ${mPlus} Points ${pMinus}% ${mMinus} Points
             <p>XP ${vXP}/${xpNeeded} To Level Up</p></div>
             <p>Synergies:<i> ${carlist[vSelected].vSynergy}</i></p>
             <button onclick="funToggleDisplay(modInfo)" id="infoClose">Close</button>
@@ -411,6 +416,14 @@
         vehWraps[slotSelected].setAttribute("data-xp", vXP);
     }
 
+    function funScoreCalc(car, lvl){
+        let score = car.vPlusPoint;
+        let lvlFactor = ((100-car.vPlusPercent)/10)*(lvl-1);
+        let roll = Math.floor(Math.random() * 100);
+        if(roll>(car.vPlusPercent+lvlFactor)){score = car.vMinusPoint;}
+        return score;
+    }
+
     function funFinalScore() {
         let num = 0;
         num = (gameVars.lives*gameVars.scorePerLife) + ((gameVars.maxTurns - gameVars.turns)*gameVars.scorePerTurn) + gameVars.points;
@@ -442,7 +455,8 @@
         for(let i in dropdowns){
             if(dropdowns[i].options){
                 output.innerHTML += `&#x25CF; ${dropdowns[i].options[dropdowns[i].selectedIndex].innerHTML} `;
-                temp = carlist[dropdowns[i].options[dropdowns[i].selectedIndex].value].vScore();
+                temp = funScoreCalc(carlist[dropdowns[i].options[dropdowns[i].selectedIndex].value], parseInt(vehWraps[i].getAttribute("data-lvl"), 10));
+                // temp = carlist[dropdowns[i].options[dropdowns[i].selectedIndex].value].vScore();
                 temp = temp * parseInt(vehWraps[i].getAttribute("data-lvl"), 10);
                 if(temp>0){temp = temp * (modifiers[disPT[i].innerHTML.split(" ", 1).toString()].mPlus)}
                 else{temp = temp * (modifiers[disPT[i].innerHTML.split(" ", 1).toString()].mMinus)}
