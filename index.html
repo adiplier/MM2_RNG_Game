@@ -521,7 +521,7 @@
         btnPlay.setAttribute('style', 'display: initial');
         btnPlay.disabled = false;
         funScoreDisplay();
-        output.innerHTML = `Your Starting Points are ${gameVars.points}\n`;
+        output.innerHTML = `Max Point limit is ${gameVars.winPoints}\n`;
         output.innerHTML += `Max Number of Turns are ${gameVars.maxTurns}\n`;
     }
 
@@ -552,7 +552,6 @@
             document.querySelector(`[data-peer-progress="${i}"]`).setAttribute("max", funXPNeeded(1));
         }
         // funScoreDisplay();
-        // output.innerHTML += `Your Starting Points are ${gameVars.points}\n`;
         // funLifeDisplay();
         funReset();
         funWelcome();
